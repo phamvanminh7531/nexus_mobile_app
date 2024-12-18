@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:db_app/screens/home_screen.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:percent_indicator/percent_indicator.dart'; // Cần cài thư viện percent_indicator
+import 'package:intl/intl.dart';
 
 class PlanItem {
   final String title;
@@ -20,7 +22,7 @@ class PlanItem {
 
 class TodoListItem{
   final String content;
-  final DateTime date;
+  final String date;
 
   TodoListItem({
     required this.content,
@@ -33,23 +35,25 @@ class ProJect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dữ liệu mẫu
-    List<PlanItem> planitems = List.generate(10, (index) {
-      return PlanItem(
-        title: 'Project ${index + 1}',
-        total: '10',
-        approved: '5',
-        processing: '3',
-        progress: (index + 1) * 0.1, // Tỉ lệ tiến trình từ 0.1 đến 1.0
-      );
-    });
+    
+  // Dữ liệu mẫu
+  List<PlanItem> planitems = [
+    PlanItem(title: '3D', total: '1', approved: '1', processing: '0', progress: 1),
+    PlanItem(title: 'MATERIAL', total: '25', approved: '20', processing: '2', progress: 0.75),
+    PlanItem(title: 'SHOP DRAWINGS', total: '1', approved: '1', processing: '1', progress: 0.95),
+    PlanItem(title: 'DOCUMENTS', total: '1', approved: '1', processing: '1', progress: 1),
+  ];
 
-    List<TodoListItem> todoitems = List.generate(10, (index) {
-      return TodoListItem(
-        content: 'Todo content ${index + 1}',
-        date: DateTime.now(),
-      );
-    });
+
+  
+  List<TodoListItem> todoitems = [
+    TodoListItem(content: 'Bắn tấm nền MDF', date: '01 Aug'),
+    TodoListItem(content: 'Thi công hệ sắt gia cố vách', date: '01 Aug'),
+    TodoListItem(content: 'Hoàn thiện trần ốp gỗ laminate', date: '01 Aug'),
+    TodoListItem(content: 'Bả xả, hoàn thiện sơn nước trần thạch cao, khe rèm', date: '01 Aug'),
+  ];
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -143,21 +147,27 @@ class ProJect extends StatelessWidget {
                         margin: const EdgeInsets.all(10),
                         child: FittedBox(
                           fit: BoxFit.contain,
-                          child: Image.asset('assets/images/project_img_1.png'),
+                          child: InstaImageViewer(
+                            child: Image.asset('assets/images/project_img_1.png'),
+                          ),
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.all(10),
                         child: FittedBox(
                           fit: BoxFit.contain,
-                          child: Image.asset('assets/images/project_img_2.png'),
+                          child: InstaImageViewer(
+                            child: Image.asset('assets/images/project_img_2.png'),
+                          ),
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.all(10),
                         child: FittedBox(
                           fit: BoxFit.contain,
-                          child: Image.asset('assets/images/project_img_3.png'),
+                          child: InstaImageViewer(
+                            child: Image.asset('assets/images/project_img_3.png'),
+                          ),
                         ),
                       ),
                     ],
@@ -251,28 +261,31 @@ class ProJect extends StatelessWidget {
                         margin: const EdgeInsets.all(10),
                         padding: const EdgeInsets.all(10),
                         color: const Color.fromRGBO(69, 90, 100, 1),
-                        height: 80,
                         child: Row(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(width: 16),
-                                Text(
-                                  todo.content,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Color.fromARGB(255, 255, 255, 255),
+                            Expanded(  // Cho phép nội dung chiếm không gian còn lại
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    todo.content,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                    ),
+                                    softWrap: true,  // Cho phép text xuống dòng khi dài
                                   ),
-                                ),
-                                Text(
-                                  'Due on: ${todo.date.toString()}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Color.fromARGB(255, 255, 255, 255),
+                                  Text(
+                                    'Due on: ${todo.date}', // Lấy chỉ phần ngày
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                    ),
+                                    softWrap: true,  // Cho phép text xuống dòng khi dài
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -280,14 +293,16 @@ class ProJect extends StatelessWidget {
                     }).toList(),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),
       ),
       backgroundColor: const Color.fromRGBO(5, 34, 36, 1),
-      drawer: Drawer(
-        backgroundColor: Colors.transparent,
+      drawer: SizedBox(
+        width: MediaQuery.of(context).size.width * 1,
+        child: Drawer(
+        backgroundColor: const Color.fromARGB(176, 0, 0, 0),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -298,7 +313,7 @@ class ProJect extends StatelessWidget {
                   'THÔNG TIN DỰ ÁN',
                   style: TextStyle(
                     color: Color.fromRGBO(255, 164, 80, 1),
-                    fontSize: 30,
+                    fontSize: 26,
                   ),
                 ),
                 onTap: () {
@@ -312,7 +327,7 @@ class ProJect extends StatelessWidget {
                   'TIẾN ĐỘ DỰ ÁN',
                   style: TextStyle(
                     color: Color.fromRGBO(255, 164, 80, 1),
-                    fontSize: 30,
+                    fontSize: 26,
                   ),
                 ),
                 onTap: () {
@@ -326,7 +341,21 @@ class ProJect extends StatelessWidget {
                   'TÀI CHÍNH DỰ ÁN',
                   style: TextStyle(
                     color: Color.fromRGBO(255, 164, 80, 1),
-                    fontSize: 30,
+                    fontSize: 26,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                },
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10.0),
+                title: const Text(
+                  'HÀNG HÓA DỰ ÁN',
+                  style: TextStyle(
+                    color: Color.fromRGBO(255, 164, 80, 1),
+                    fontSize: 26,
                   ),
                 ),
                 onTap: () {
@@ -340,7 +369,7 @@ class ProJect extends StatelessWidget {
                   'LƯU Ý - NHẮC NHỞ',
                   style: TextStyle(
                     color: Color.fromRGBO(255, 164, 80, 1),
-                    fontSize: 30,
+                    fontSize: 26,
                   ),
                 ),
                 onTap: () {
@@ -351,6 +380,8 @@ class ProJect extends StatelessWidget {
           ),
         ),
       ),
+      )
+
     );
   }
 }
