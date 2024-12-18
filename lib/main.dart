@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
 import 'screens/home_screen.dart';
-import 'screens/project_screen.dart';
+import 'screens/project/project_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/customer_care_screen.dart';
 import 'screens/product_screen.dart';
@@ -20,10 +20,10 @@ class MyApp extends StatelessWidget {
       initialRoute: AppRoutes.home,
       routes: {
         AppRoutes.home: (_) => const MyHomePage(),
-        AppRoutes.project: (_) => const ProJect(),
-        AppRoutes.chat: (_) => const Chat(),
-        AppRoutes.product: (_) => const Product(),
-        AppRoutes.customercate: (_) => const CustomerCare(),
+        AppRoutes.project: (_) => const ProjectScreen(),
+        AppRoutes.chat: (_) => const ChatScreen(),
+        AppRoutes.product: (_) => const ProductScreen(),
+        AppRoutes.customercate: (_) => const CustomerCareScreen(),
       },
     );
   }
@@ -41,10 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    ProJect(),
-    Chat(),
-    Product(),
-    CustomerCare(),
+    ProjectScreen(),
+    ChatScreen(),
+    ProductScreen(),
+    CustomerCareScreen(),
   ];
 
   void _onItemTapped(int index) {

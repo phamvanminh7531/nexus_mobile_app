@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:db_app/screens/home_screen.dart';
+import 'package:db_app/screens/project/ticket_screen.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:percent_indicator/percent_indicator.dart'; // Cần cài thư viện percent_indicator
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PlanItem {
   final String title;
@@ -30,8 +31,8 @@ class TodoListItem{
   });
 }
 
-class ProJect extends StatelessWidget {
-  const ProJect({Key? key}) : super(key: key);
+class ProjectScreen extends StatelessWidget {
+  const ProjectScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +318,7 @@ class ProJect extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
               const SizedBox(height: 20),
@@ -331,7 +332,7 @@ class ProJect extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
               const SizedBox(height: 20),
@@ -345,7 +346,7 @@ class ProJect extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
               const SizedBox(height: 20),
@@ -359,7 +360,7 @@ class ProJect extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
               const SizedBox(height: 20),
@@ -373,7 +374,7 @@ class ProJect extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
             ],
