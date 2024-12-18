@@ -1,0 +1,64 @@
+flutter:
+  assets:
+    - asserts/icons/home.png
+    - asserts/icons/project.png
+    - asserts/icons/customer1.png
+    - asserts/icons/profile.png
+
+fonts:
+  - family: Poppins
+    fonts:
+      - asserts/Font/Poppins-Black.ttf
+        style: Black
+
+      - asserts/Font/Poppins-BlackItalic.ttf
+       style: BlackItalic
+
+      - asserts/Font/Poppins-Bold.ttf
+       style: Bold
+
+      - asserts/Font/Poppins-BoldItalic.ttf
+       style: BoldItalic
+
+      - asserts/Font/Poppins-ExtraBold.ttf
+       style: ExtraBold
+
+      - asserts/Font/Poppins-ExtraBoldItalic.ttf
+       style: ExtraBoldItalic
+
+      - asserts/Font/Poppins-ExtraLight.ttf
+       style: ExtraLight
+
+      - asserts/Font/Poppins-ExtraLightItalic.ttf
+       style: ExtraLightItalic
+
+      - asserts/Font/Poppins-Italic.ttf
+       style: Italic
+
+      - asserts/Font/Poppins-Light.ttf
+       style: Light
+
+      - asserts/Font/Poppins-LightItalic.ttf
+       style: LightItalic
+       
+      - asserts/Font/Poppins-Medium.ttf
+       style: Medium
+
+      - asserts/Font/Poppins-MediumItalic.ttf
+       style: MediumItalic
+
+      - asserts/Font/Poppins-Regular.ttf
+       style: Regular
+
+      - asserts/Font/Poppins-SemiBold.ttf
+       style: SemiBold
+
+      - asserts/Font/Poppins-SemiBoldItalic.ttf
+       style: SemiBoldItalic
+
+      - asserts/Font/Poppins-Thin.ttf
+       style: Thin
+
+      - asserts/Font/Poppins-ThinItalic.ttf
+       style: ThinItalic
+

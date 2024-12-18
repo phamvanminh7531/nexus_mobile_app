@@ -1,4 +1,4 @@
-# nexus_mobile_app
+# db_app
 
 A new Flutter project.
 
