@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:image_painter/image_painter.dart';
+import 'package:path_provider/path_provider.dart';
 
 // Biến trạng thái để lưu giá trị được chọn
 String _selectedFloor = 'Floor 1'; // Giá trị mặc định
@@ -209,6 +212,7 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
                   ),
                 ),
               ),
+              
               Container(
                 height: 300,
                 width: 600,

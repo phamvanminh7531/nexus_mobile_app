@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_painter/image_painter.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -18,23 +17,21 @@ class _ChatScreenState extends State<ChatScreen> {
     mode: PaintMode.rect,
   );
 
+  Uint8List? _savedImageBytes;
+
   Future<void> _saveEditedImage() async {
     try {
-      // Export the drawn image
+      // Export the drawn image as a byte array
       Uint8List? byteArray = await _controller.exportImage();
 
       if (byteArray != null) {
-        // Get the app's documents directory
-        final directory = await getApplicationDocumentsDirectory();
-        final filePath = "${directory.path}/layout_floor_3_ticket.png";
-
-        // Save the file
-        final file = File(filePath);
-        await file.writeAsBytes(byteArray);
+        setState(() {
+          _savedImageBytes = byteArray;
+        });
 
         // Notify the user
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image saved to: $filePath")),
+          const SnackBar(content: Text("Image saved in memory!")),
         );
       }
     } catch (e) {
@@ -57,11 +54,44 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: ImagePainter.asset(
-        "assets/images/layout_floor_3_ticket.png",
-        controller: _controller,
-        scalable: true,
-        textDelegate: TextDelegate(),
+      body: Column(
+        children: [
+          // Image painter for editing
+          Expanded(
+            flex: 2,
+            child: ImagePainter.asset(
+              "assets/images/layout_floor_3_ticket.png",
+              controller: _controller,
+              scalable: true,
+              textDelegate: TextDelegate(),
+            ),
+          ),
+          // Display the saved image
+          Expanded(
+            flex: 1,
+            child: _savedImageBytes == null
+                ? const Center(
+                    child: Text(
+                      "No saved image yet",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      const Text(
+                        "Saved Image:",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Expanded(
+                        child: Image.memory(
+                          _savedImageBytes!,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
