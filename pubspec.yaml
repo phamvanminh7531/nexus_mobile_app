@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  path_provider: ^2.1.5
+  open_file: ^3.5.10
   flutter_screenutil: ^5.9.3
   insta_image_viewer: ^1.0.4
   image_painter: ^0.7.1
