@@ -4,6 +4,7 @@ import 'package:insta_image_viewer/insta_image_viewer.dart';
 // Biến trạng thái để lưu giá trị được chọn
 String _selectedFloor = 'Floor 1'; // Giá trị mặc định
 String _selectedDepartment = 'Living Area'; // Giá trị mặc định
+String _floorImage = 'assets/images/layout_floor_1_ticket.png';
 
 class CreateNewTicketScreen extends StatefulWidget {
   const CreateNewTicketScreen({super.key});
@@ -93,7 +94,7 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
                     child: const Text(
                       'Floor',
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 24,
                         color: Color.fromARGB(255, 255, 255, 255),
                       ),
                       overflow: TextOverflow
@@ -123,6 +124,13 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
                       onChanged: (String? newValue) {
                         setState(() {
                           _selectedFloor = newValue!;
+                          if (_selectedFloor == 'Floor 1') {
+                            _floorImage = 'assets/images/layout_floor_1_ticket.png';
+                          } else if (_selectedFloor == 'Floor 2') {
+                            _floorImage = 'assets/images/layout_floor_2_ticket.png';
+                          } else if (_selectedFloor == 'Floor 3') {
+                            _floorImage = 'assets/images/layout_floor_3_ticket.png';
+                          }
                         });
                       },
                       items: <String>['Floor 1', 'Floor 2', 'Floor 3']
@@ -206,12 +214,14 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
               ),
             ),
             Container(
+              height: 300,
+              width: 600,
               margin: const EdgeInsets.all(10),
               alignment: Alignment.center,
               child: FittedBox(
-                fit: BoxFit.contain,
+                fit: BoxFit.fill,
                 child: InstaImageViewer(
-                  child: Image.asset('assets/images/layout_floor_1_ticket.png'),
+                  child: Image.asset(_floorImage),
                 ),
               ),
             ),
