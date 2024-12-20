@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_painter/image_painter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditImageScreen extends StatefulWidget {
   const EditImageScreen({Key? key}) : super(key: key);
@@ -12,18 +13,21 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends State<EditImageScreen> {
-  final ImagePainterController _controller = ImagePainterController(
-    color: const Color.fromARGB(255, 255, 0, 0),
-    strokeWidth: 2,
-    mode: PaintMode.rect,
-  );
-
-  String? _savedImagePath;
+  final List<Map<String, String>> _tickets = []; // List to hold ticket data
+  String? _editedImagePath;
+  String? _capturedImagePath;
+  String? _description;
 
   Future<void> _openEditDialog() async {
+    final ImagePainterController localController = ImagePainterController(
+      color: const Color.fromARGB(255, 255, 0, 0),
+      strokeWidth: 2,
+      mode: PaintMode.rect,
+    );
+
     await showDialog(
       context: context,
-      barrierDismissible: false, // Không cho phép đóng khi nhấn ra ngoài
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -40,23 +44,19 @@ class _EditImageScreenState extends State<EditImageScreen> {
                         IconButton(
                           icon: const Icon(Icons.save_alt),
                           onPressed: () async {
-                            Uint8List? byteArray = await _controller.exportImage();
+                            Uint8List? byteArray = await localController.exportImage();
                             if (byteArray != null) {
-                              // Lưu ảnh
                               final directory = await getApplicationDocumentsDirectory();
                               final filePath = '${directory.path}/edited_image.png';
                               final file = File(filePath);
-
                               await file.writeAsBytes(byteArray);
 
-                              // Cập nhật đường dẫn ảnh
                               setState(() {
-                                _savedImagePath = filePath;
+                                _editedImagePath = filePath;
                               });
 
-                              // Đóng Dialog và mở Form mới
-                              Navigator.pop(context); // Close the edit dialog
-                              _openFormDialog(filePath); // Open the second dialog
+                              Navigator.pop(context);  // Close the dialog after saving
+                              _openFormDialog(filePath);  // Open form dialog after saving image
                             }
                           },
                         ),
@@ -65,7 +65,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     Expanded(
                       child: ImagePainter.asset(
                         "assets/images/layout_floor_3_ticket.png",
-                        controller: _controller,
+                        controller: localController,
                         scalable: true,
                         textDelegate: TextDelegate(),
                       ),
@@ -78,92 +78,149 @@ class _EditImageScreenState extends State<EditImageScreen> {
         );
       },
     );
+
+    localController.dispose();
   }
 
   Future<void> _openFormDialog(String imagePath) async {
+    final ImagePicker picker = ImagePicker();
+
     await showDialog(
       context: context,
-      barrierDismissible: false, // Không cho phép đóng khi nhấn ra ngoài
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppBar(
-                  title: const Text("Create Ticket 2"),
-                  automaticallyImplyLeading: false,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Description",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: "Nhập mô tả lỗi...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateDialog) {
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      title: const Text("Create Ticket 2"),
+                      automaticallyImplyLeading: false,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Vị Trí",
+                            "Description",
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          const Text(
-                            "Hình Lỗi",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          const SizedBox(height: 8),
+                          TextField(
+                            decoration: InputDecoration(
+                              hintText: "Nhập mô tả lỗi...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                            ),
+                            onChanged: (value) {
+                              setStateDialog(() {
+                                _description = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text(
+                                "Vị Trí",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Hình Lỗi",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (_editedImagePath != null)
+                                      Image.file(
+                                        File(_editedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const VerticalDivider(width: 1, color: Colors.grey),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (_capturedImagePath != null)
+                                      Image.file(
+                                        File(_capturedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    const SizedBox(height: 16),
+                                    IconButton(
+                                      icon: const Icon(Icons.camera_alt, size: 50),
+                                      onPressed: () async {
+                                        final XFile? image =
+                                            await picker.pickImage(source: ImageSource.camera);
+                                        if (image != null) {
+                                          setStateDialog(() {
+                                            _capturedImagePath = image.path;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_description != null &&
+                                    _editedImagePath != null &&
+                                    _capturedImagePath != null) {
+                                  final ticket = {
+                                    "description": _description!,
+                                    "editedImagePath": _editedImagePath!,
+                                    "capturedImagePath": _capturedImagePath!,
+                                  };
+                                  setState(() {
+                                    _tickets.add(ticket);
+                                    print("Ticket added: $_tickets");
+                                  });
+
+                                  Navigator.pop(context);  // Close the form dialog
+                                } else {
+                                  print("Chưa điền đầy đủ thông tin");
+                                }
+                              },
+                              child: const Text("Kết thúc"),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Image.file(
-                              File(imagePath),
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: IconButton(
-                              icon: const Icon(Icons.camera_alt, size: 50),
-                              onPressed: _openEditDialog, // Mở lại dialog chỉnh sửa
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -172,11 +229,35 @@ class _EditImageScreenState extends State<EditImageScreen> {
       appBar: AppBar(
         title: const Text("Edit Image Example"),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _openEditDialog,
-          child: const Text("Open Edit Dialog"),
-        ),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: _openEditDialog,
+            child: const Text("Open Edit Dialog"),
+          ),
+          Expanded(
+            child: _tickets.isEmpty
+                ? Center(child: Text("No tickets"))
+                : ListView.builder(
+                    itemCount: _tickets.length,
+                    itemBuilder: (context, index) {
+                      final ticket = _tickets[index];
+                      return Card(
+                        margin: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          title: Text(ticket["description"] ?? "No Description"),
+                          leading: ticket["editedImagePath"] != null
+                              ? Image.file(File(ticket["editedImagePath"]!), width: 50, height: 50)
+                              : Icon(Icons.image, size: 50),
+                          trailing: ticket["capturedImagePath"] != null
+                              ? Image.file(File(ticket["capturedImagePath"]!), width: 50, height: 50)
+                              : Icon(Icons.camera_alt, size: 50),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
