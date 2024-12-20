@@ -5,6 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:image_painter/image_painter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:db_app/screens/project/ticket_screen.dart';
+import 'package:db_app/screens/project/project_screen.dart';
+import 'task_list.dart';
+import 'package:intl/intl.dart';
 
 // Biến trạng thái để lưu giá trị được chọn
 String _selectedFloor = 'Floor 1'; // Giá trị mặc định
@@ -14,7 +18,8 @@ String? _editedImagePath;
 String? _capturedImagePath;
 String? _description;
 String? _tasktitle;
-final List<Map<String, String>> _tickets = []; // List to hold ticket data
+
+
 
 class CreateNewTicketScreen extends StatefulWidget {
   const CreateNewTicketScreen({super.key});
@@ -24,7 +29,7 @@ class CreateNewTicketScreen extends StatefulWidget {
 }
 
 class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
-  
+  List<Map<String, String>> tickets = []; // List to hold ticket data
   Future<void> _showTicketDetails(Map<String, dynamic> ticket) async {
     await showDialog(
       context: context,
@@ -141,7 +146,7 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
   void _deleteTicket(Map<String, dynamic> ticket) {
     setState(() {
       // Xóa ticket từ danh sách
-      _tickets.remove(ticket);
+      tickets.remove(ticket);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Ticket đã được xóa!")),
       );
@@ -179,7 +184,8 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
                             if (byteArray != null) {
                               final directory =
                                   await getApplicationDocumentsDirectory();
-                              final timestamp = DateTime.now().millisecondsSinceEpoch;
+                              final timestamp =
+                                  DateTime.now().millisecondsSinceEpoch;
                               final filePath =
                                   '${directory.path}/edited_image_$timestamp.png';
                               final file = File(filePath);
@@ -218,175 +224,175 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
     localController.dispose();
   }
 
-Future<void> _openFormDialog(String imagePath) async {
-  final ImagePicker picker = ImagePicker();
+  Future<void> _openFormDialog(String imagePath) async {
+    final ImagePicker picker = ImagePicker();
 
-  // Reset lại các giá trị ảnh trước khi mở dialog
-  setState(() {
-    _capturedImagePath = null; // Xóa đường dẫn ảnh chụp cũ
-  });
+    // Reset lại các giá trị ảnh trước khi mở dialog
+    setState(() {
+      _capturedImagePath = null; // Xóa đường dẫn ảnh chụp cũ
+    });
 
-  await showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (BuildContext context) {
-      return Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setStateDialog) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppBar(
-                    title: const Text("Create Ticket 2"),
-                    automaticallyImplyLeading: false,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Description",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: "Nhập mô tả lỗi...",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                          ),
-                          onChanged: (value) {
-                            setStateDialog(() {
-                              _description = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              "Vị Trí",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "Hình Lỗi",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  if (_editedImagePath != null)
-                                    Image.file(
-                                      File(_editedImagePath!),
-                                      height: 200,
-                                      fit: BoxFit.cover,
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const VerticalDivider(width: 1, color: Colors.grey),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  if (_capturedImagePath != null)
-                                    Image.file(
-                                      File(_capturedImagePath!),
-                                      height: 200,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  const SizedBox(height: 16),
-                                  IconButton(
-                                    icon: const Icon(Icons.camera_alt,
-                                        size: 50),
-                                    onPressed: () async {
-                                      final XFile? image =
-                                          await picker.pickImage(
-                                              source: ImageSource.camera);
-                                      if (image != null) {
-                                        // Tạo tên tệp duy nhất cho ảnh chụp
-                                        final directory =
-                                            await getApplicationDocumentsDirectory();
-                                        final timestamp = DateTime.now().millisecondsSinceEpoch;
-                                        final newImagePath =
-                                            '${directory.path}/captured_image_$timestamp.png';
-
-                                        await image.saveTo(newImagePath);
-
-                                        setStateDialog(() {
-                                          _capturedImagePath = newImagePath;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.center,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_description != null &&
-                                  _editedImagePath != null &&
-                                  _capturedImagePath != null) {
-                                final ticket = {
-                                  "taskTitle":
-                                      _tasktitle ?? "Default description",
-                                  "description": _description!,
-                                  "editedImagePath": _editedImagePath!,
-                                  "capturedImagePath": _capturedImagePath!,
-                                };
-                                setState(() {
-                                  _tickets.add(ticket);
-                                  print("Ticket added: $_tickets");
-                                });
-                                Navigator.pop(context); // Close the form dialog
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Saved!")),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text("Chưa điền đầy đủ thông tin")),
-                                );
-                                print("Chưa điền đầy đủ thông tin");
-                              }
-                            },
-                            child: const Text("Kết thúc"),
-                          ),
-                        ),
-                      ],
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateDialog) {
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      title: const Text("Create Ticket 2"),
+                      automaticallyImplyLeading: false,
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Description",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            decoration: InputDecoration(
+                              hintText: "Nhập mô tả lỗi...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                            ),
+                            onChanged: (value) {
+                              setStateDialog(() {
+                                _description = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text(
+                                "Vị Trí",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Hình Lỗi",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (_editedImagePath != null)
+                                      Image.file(
+                                        File(_editedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const VerticalDivider(
+                                  width: 1, color: Colors.grey),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (_capturedImagePath != null)
+                                      Image.file(
+                                        File(_capturedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    const SizedBox(height: 16),
+                                    IconButton(
+                                      icon: const Icon(Icons.camera_alt,
+                                          size: 50),
+                                      onPressed: () async {
+                                        final XFile? image =
+                                            await picker.pickImage(
+                                                source: ImageSource.camera);
+                                        if (image != null) {
+                                          // Tạo tên tệp duy nhất cho ảnh chụp
+                                          final directory =
+                                              await getApplicationDocumentsDirectory();
+                                          final timestamp = DateTime.now()
+                                              .millisecondsSinceEpoch;
+                                          final newImagePath =
+                                              '${directory.path}/captured_image_$timestamp.png';
 
+                                          await image.saveTo(newImagePath);
+
+                                          setStateDialog(() {
+                                            _capturedImagePath = newImagePath;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_description != null &&
+                                    _editedImagePath != null &&
+                                    _capturedImagePath != null) {
+                                  final ticket = {
+                                    "description": _description!,
+                                    "editedImagePath": _editedImagePath!,
+                                    "capturedImagePath": _capturedImagePath!,
+                                  };
+                                  setState(() {
+                                    tickets.add(ticket);
+                                    print("Ticket added: $tickets");
+                                  });
+                                  Navigator.pop(
+                                      context); // Close the form dialog
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Saved!")),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text("Chưa điền đầy đủ thông tin")),
+                                  );
+                                  print("Chưa điền đầy đủ thông tin");
+                                }
+                              },
+                              child: const Text("Kết thúc"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -621,7 +627,7 @@ Future<void> _openFormDialog(String imagePath) async {
                 ),
               ),
               const SizedBox(height: 8),
-              ..._tickets.map((ticket) {
+              ...tickets.map((ticket) {
                 return Container(
                   margin: const EdgeInsets.all(10),
                   padding: const EdgeInsets.all(10),
@@ -635,7 +641,7 @@ Future<void> _openFormDialog(String imagePath) async {
                           children: [
                             const SizedBox(width: 16),
                             Text(
-                              ticket["taskTitle"].toString(),
+                              '01 - : ${_tasktitle.toString()}',
                               style: const TextStyle(
                                 fontSize: 20,
                                 color: Color.fromARGB(255, 255, 255, 255),
@@ -722,7 +728,22 @@ Future<void> _openFormDialog(String imagePath) async {
             ),
             ElevatedButton(
               onPressed: () {
-                // Handle Apply action
+                DateFormat dateFormat = DateFormat("dd-MM-yyyy HH:mm");
+                final task = {
+                  "taskTitle": _tasktitle!, // Ví dụ lấy từ biến _tasktitle
+                  "floor": _selectedFloor, // Ví dụ lấy từ biến _selectedFloor
+                  "department":
+                      _selectedDepartment, // Ví dụ lấy từ biến _selectedDepartment
+                  "create_date": dateFormat.format(DateTime.now()),
+                  "tickets": List.from(tickets), // Thêm tickets vào task
+                };
+                setState(() {
+                  tasks.add(task); // Thêm task vào tasks
+                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const TicketScreen()));
               },
               style: ElevatedButton.styleFrom(
                 shape: const StadiumBorder(),
@@ -739,7 +760,7 @@ Future<void> _openFormDialog(String imagePath) async {
             ),
             ElevatedButton(
               onPressed: () {
-                // Handle Settings action
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProjectScreen()));
               },
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),

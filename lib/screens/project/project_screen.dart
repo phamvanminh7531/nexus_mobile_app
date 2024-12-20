@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:db_app/screens/project/ticket_screen.dart';
-import 'package:db_app/screens/project/create_new_ticket.dart';
+import 'package:db_app/screens/project/create_new_ticket_screen.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:percent_indicator/percent_indicator.dart'; // Cần cài thư viện percent_indicator
 import 'package:intl/intl.dart';
@@ -375,7 +375,7 @@ class ProjectScreen extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateNewTicketScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const TicketScreen()));
                 },
               ),
             ],
