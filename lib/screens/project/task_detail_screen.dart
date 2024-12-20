@@ -134,7 +134,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _floorImage = 'assets/images/layout_floor_3_ticket.png';
     }
 
-    void _editImage(String imagePath, Map<String, dynamic> ticket) {
+    void _editImage(String imagePath, Map<String, dynamic> ticket,
+        StateSetter setStateDialog // Add this parameter
+        ) {
       final ImagePainterController localController = ImagePainterController(
         color: const Color.fromARGB(255, 255, 0, 0),
         strokeWidth: 2,
@@ -145,30 +147,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         imagePath: _floorImage,
         controller: localController,
         onSave: (String newImagePath) {
-          // ticket["editedImagePath"] = newImagePath; // Cập nhật ticket
           editedImagePathMem = newImagePath;
-          editedImagePath = newImagePath;
-          debugPrint("Set state: $newImagePath");
-          debugPrint("Set state: $editedImagePath");
-          setState(() {}); // Cập nhật UI ngoài Dialog
+          setStateDialog(() {
+            editedImagePath = newImagePath;
+          });
         },
       );
     }
-
-    // Hàm để chọn hoặc chụp ảnh
-    // Future<void> _pickImage(bool isEditedImage) async {
-    //   final ImagePicker _picker = ImagePicker();
-    //   final XFile? image = await _picker.pickImage(
-    //       source: ImageSource.camera); // Chụp ảnh từ camera
-
-    //   if (image != null) {
-    //     if (isEditedImage) {
-    //       editedImagePath = image.path; // Cập nhật ảnh đã chỉnh sửa
-    //     } else {
-    //       capturedImagePath = image.path; // Cập nhật ảnh đã chụp
-    //     }
-    //   }
-    // }
 
     // Hiển thị Dialog chỉnh sửa ticket
     await showDialog(
@@ -235,6 +220,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                     if (editedImagePath != null)
                                       Image.file(
                                         File(editedImagePath!),
+                                        key: UniqueKey(), // Add this line
                                         height: 200,
                                         fit: BoxFit.cover,
                                       ),
@@ -242,10 +228,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                       onPressed: () {
                                         _editImage(
                                             ticket["capturedImagePath"] ?? '',
-                                            ticket);
-                                        setStateDialog(() {
-                                          editedImagePath = editedImagePathMem;
-                                        });
+                                            ticket,
+                                            setStateDialog // Pass the setStateDialog function here
+                                            );
                                       },
                                       child: const Text("Chỉnh sửa ảnh"),
                                     ),
@@ -265,9 +250,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                       ),
                                     ElevatedButton(
                                       onPressed: () async {
-                                        final ImagePicker _picker = ImagePicker();
-                                        final XFile? image = await _picker.pickImage(
-                                              source: ImageSource.camera); // Chụp ảnh từ camera
+                                        final ImagePicker _picker =
+                                            ImagePicker();
+                                        final XFile? image =
+                                            await _picker.pickImage(
+                                                source: ImageSource
+                                                    .camera); // Chụp ảnh từ camera
                                         setStateDialog(() {
                                           capturedImagePath = image?.path;
                                         }); // Cập nhật UI trong dialog sau khi chỉnh sửa
@@ -290,7 +278,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                     descriptionController.text;
                                 ticket["editedImagePath"] = editedImagePathMem;
                                 ticket["capturedImagePath"] = capturedImagePath;
-                                
+
                                 setState(
                                     () {}); // Cập nhật lại toàn bộ danh sách tickets
                                 Navigator.pop(context); // Đóng dialog
