@@ -354,6 +354,7 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
                                     _editedImagePath != null &&
                                     _capturedImagePath != null) {
                                   final ticket = {
+                                    "floor":_selectedFloor,
                                     "description": _description!,
                                     "editedImagePath": _editedImagePath!,
                                     "capturedImagePath": _capturedImagePath!,

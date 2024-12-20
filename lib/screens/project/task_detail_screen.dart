@@ -49,6 +49,268 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     super.dispose();
   }
 
+  Future<void> _openEditImagePainterDialog({
+    required String imagePath,
+    required ImagePainterController controller,
+    required Function(String) onSave,
+  }) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateDialog) {
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: Column(
+                  children: [
+                    AppBar(
+                      title: const Text("Chỉnh sửa hình ảnh"),
+                      automaticallyImplyLeading: false,
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.save_alt),
+                          onPressed: () async {
+                            // Xuất hình ảnh dưới dạng mảng byte
+                            Uint8List? byteArray =
+                                await controller.exportImage();
+                            if (byteArray != null) {
+                              // Lấy thư mục để lưu file
+                              final directory =
+                                  await getApplicationDocumentsDirectory();
+                              final timestamp =
+                                  DateTime.now().millisecondsSinceEpoch;
+                              final filePath =
+                                  '${directory.path}/edited_image_$timestamp.png';
+                              final file = File(filePath);
+
+                              // Lưu mảng byte thành file hình ảnh
+                              await file.writeAsBytes(byteArray);
+
+                              // Trả về đường dẫn hình ảnh đã lưu qua callback
+                              onSave(
+                                  filePath); // Lưu đường dẫn và gọi lại callback
+
+                              Navigator.pop(context); // Đóng dialog sau khi lưu
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: ImagePainter.asset(
+                        imagePath,
+                        controller: controller,
+                        scalable: true,
+                        textDelegate: TextDelegate(),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showEditTicket(Map<String, dynamic> ticket) async {
+    // Controller để giữ giá trị nhập vào cho mô tả
+    TextEditingController descriptionController =
+        TextEditingController(text: ticket["description"]);
+    String? editedImagePath = ticket["editedImagePath"];
+    String? capturedImagePath = ticket["capturedImagePath"];
+    String? floor = ticket["floor"];
+    late String? editedImagePathMem;
+
+    if (floor == "Floor 1") {
+      _floorImage = 'assets/images/layout_floor_1_ticket.png';
+    } else if (floor == "Floor 2") {
+      _floorImage = 'assets/images/layout_floor_2_ticket.png';
+    } else if (floor == "Floor 3") {
+      _floorImage = 'assets/images/layout_floor_3_ticket.png';
+    }
+
+    void _editImage(String imagePath, Map<String, dynamic> ticket) {
+      final ImagePainterController localController = ImagePainterController(
+        color: const Color.fromARGB(255, 255, 0, 0),
+        strokeWidth: 2,
+        mode: PaintMode.rect,
+      );
+
+      _openEditImagePainterDialog(
+        imagePath: _floorImage,
+        controller: localController,
+        onSave: (String newImagePath) {
+          // ticket["editedImagePath"] = newImagePath; // Cập nhật ticket
+          editedImagePathMem = newImagePath;
+          editedImagePath = newImagePath;
+          debugPrint("Set state: $newImagePath");
+          debugPrint("Set state: $editedImagePath");
+          setState(() {}); // Cập nhật UI ngoài Dialog
+        },
+      );
+    }
+
+    // Hàm để chọn hoặc chụp ảnh
+    // Future<void> _pickImage(bool isEditedImage) async {
+    //   final ImagePicker _picker = ImagePicker();
+    //   final XFile? image = await _picker.pickImage(
+    //       source: ImageSource.camera); // Chụp ảnh từ camera
+
+    //   if (image != null) {
+    //     if (isEditedImage) {
+    //       editedImagePath = image.path; // Cập nhật ảnh đã chỉnh sửa
+    //     } else {
+    //       capturedImagePath = image.path; // Cập nhật ảnh đã chụp
+    //     }
+    //   }
+    // }
+
+    // Hiển thị Dialog chỉnh sửa ticket
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateDialog) {
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      title: const Text("View/Edit Ticket"),
+                      automaticallyImplyLeading: true,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Description",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: descriptionController,
+                            decoration: InputDecoration(
+                              hintText: "Nhập mô tả lỗi...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text(
+                                "Vị Trí",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Hình Lỗi",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (editedImagePath != null)
+                                      Image.file(
+                                        File(editedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _editImage(
+                                            ticket["capturedImagePath"] ?? '',
+                                            ticket);
+                                        setStateDialog(() {
+                                          editedImagePath = editedImagePathMem;
+                                        });
+                                      },
+                                      child: const Text("Chỉnh sửa ảnh"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const VerticalDivider(
+                                  width: 1, color: Colors.grey),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    if (capturedImagePath != null)
+                                      Image.file(
+                                        File(capturedImagePath!),
+                                        height: 200,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final ImagePicker _picker = ImagePicker();
+                                        final XFile? image = await _picker.pickImage(
+                                              source: ImageSource.camera); // Chụp ảnh từ camera
+                                        setStateDialog(() {
+                                          capturedImagePath = image?.path;
+                                        }); // Cập nhật UI trong dialog sau khi chỉnh sửa
+                                      },
+                                      child: const Text("Chỉnh sửa ảnh"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.center,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Lưu và đóng dialog sau khi chỉnh sửa
+
+                                ticket["description"] =
+                                    descriptionController.text;
+                                ticket["editedImagePath"] = editedImagePathMem;
+                                ticket["capturedImagePath"] = capturedImagePath;
+                                
+                                setState(
+                                    () {}); // Cập nhật lại toàn bộ danh sách tickets
+                                Navigator.pop(context); // Đóng dialog
+                              },
+                              child: const Text("Lưu thay đổi"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showTicketDetails(Map<String, dynamic> ticket) async {
     await showDialog(
       context: context,
@@ -691,6 +953,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               onPressed: () {
                                 // Logic sửa ticket
                                 // _editTicket(ticket);
+                                _showEditTicket(ticket);
                               },
                             ),
                           ),
@@ -769,7 +1032,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProjectScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProjectScreen()));
               },
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),
