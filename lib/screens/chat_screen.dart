@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_painter/image_painter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -11,35 +13,97 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ImagePainterController _controller = ImagePainterController(
-    color: const Color.fromARGB(255, 255, 0, 0),
-    strokeWidth: 2,
-    mode: PaintMode.rect,
-  );
+  String? _savedImagePath;
 
-  Uint8List? _savedImageBytes;
+  Future<void> _openImagePainter() async {
+    final ImagePainterController controller = ImagePainterController(
+      color: const Color.fromARGB(255, 255, 0, 0),
+      strokeWidth: 2,
+      mode: PaintMode.rect,
+    );
 
-  Future<void> _saveEditedImage() async {
-    try {
-      // Export the drawn image as a byte array
-      Uint8List? byteArray = await _controller.exportImage();
+    // Mở BottomSheet
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateBottomSheet) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Column(
+                children: [
+                  AppBar(
+                    title: const Text("Edit Image"),
+                    automaticallyImplyLeading: false,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.save_alt),
+                        onPressed: () async {
+                          Uint8List? byteArray = await controller.exportImage();
+                          if (byteArray != null) {
+                            final directory = await getApplicationDocumentsDirectory();
+                            final filePath = '${directory.path}/edited_image.png';
+                            final file = File(filePath);
 
-      if (byteArray != null) {
-        setState(() {
-          _savedImageBytes = byteArray;
-        });
+                            await file.writeAsBytes(byteArray); // Lưu ảnh
+                            setState(() {
+                              _savedImagePath = filePath;
+                            });
 
-        // Notify the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Image saved in memory!")),
+                            Navigator.pop(context); // Đóng BottomSheet
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Image saved successfully!")),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: ImagePainter.asset(
+                      "assets/images/layout_floor_3_ticket.png",
+                      controller: controller,
+                      scalable: true,
+                      textDelegate: TextDelegate(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
-      }
-    } catch (e) {
-      // Handle errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to save image: $e")),
+      },
+    );
+
+    // Hủy controller
+    controller.dispose();
+  }
+
+  Widget _displaySavedImage() {
+    if (_savedImagePath == null) {
+      return const Center(
+        child: Text(
+          "No saved image yet",
+          style: TextStyle(color: Colors.black, fontSize: 18),
+        ),
       );
     }
+
+    return Column(
+      children: [
+        const Text(
+          "Saved Image:",
+          style: TextStyle(color: Colors.black, fontSize: 18),
+        ),
+        Expanded(
+          child: Image.file(
+            File(_savedImagePath!),
+            fit: BoxFit.contain,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -47,49 +111,20 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Image Painter Example"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save_alt),
-            onPressed: _saveEditedImage,
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // Image painter for editing
+          // Hiển thị ảnh đã lưu
           Expanded(
-            flex: 2,
-            child: ImagePainter.asset(
-              "assets/images/layout_floor_3_ticket.png",
-              controller: _controller,
-              scalable: true,
-              textDelegate: TextDelegate(),
-            ),
+            child: _displaySavedImage(),
           ),
-          // Display the saved image
-          Expanded(
-            flex: 1,
-            child: _savedImageBytes == null
-                ? const Center(
-                    child: Text(
-                      "No saved image yet",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      const Text(
-                        "Saved Image:",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Expanded(
-                        child: Image.memory(
-                          _savedImageBytes!,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
+          // Nút mở ImagePainter
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _openImagePainter,
+              child: const Text("Open Image Painter"),
+            ),
           ),
         ],
       ),

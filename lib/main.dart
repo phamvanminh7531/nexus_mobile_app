@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.project: (_) => const ProjectScreen(),
         AppRoutes.chat: (_) => const ChatScreen(),
         AppRoutes.product: (_) => const ProductScreen(),
-        AppRoutes.customercate: (_) => const CustomerCareScreen(),
+        AppRoutes.customercate: (_) => const EditImageScreen(),
       },
     );
   }
@@ -44,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ProjectScreen(),
     ChatScreen(),
     ProductScreen(),
-    CustomerCareScreen(),
+    EditImageScreen(),
   ];
 
   void _onItemTapped(int index) {
