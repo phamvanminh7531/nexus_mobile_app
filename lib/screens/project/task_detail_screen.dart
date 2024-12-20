@@ -34,7 +34,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   void initState() {
     super.initState();
     // Lấy danh sách tickets từ task và lưu vào trạng thái
-    tickets = widget.task["tickets"] ?? [];
+    tickets = List.from(widget.task["tickets"]);
     _selectedFloor = widget.task["floor"];
     _selectedDepartment = widget.task["department"];
     _taskTitleController =

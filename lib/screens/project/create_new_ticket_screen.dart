@@ -19,8 +19,6 @@ String? _capturedImagePath;
 String? _description;
 String? _tasktitle;
 
-
-
 class CreateNewTicketScreen extends StatefulWidget {
   const CreateNewTicketScreen({super.key});
 
@@ -760,7 +758,10 @@ class _CreateNewTicketScreenState extends State<CreateNewTicketScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProjectScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProjectScreen()));
               },
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),
